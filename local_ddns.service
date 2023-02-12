@@ -1,0 +1,11 @@
+[Unit]
+Description=My local_ddns APP
+After=syslog.target
+ 
+[Service]
+ExecStart=/home/exe/local_ddns/local_ddns
+SuccessExitStatus=143
+RemainAfterExit=yes
+ 
+[Install]
+WantedBy=multi-user.target

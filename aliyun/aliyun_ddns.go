@@ -92,7 +92,6 @@ func (ptr *aliyun) searchRecordId(domain *Domain) error {
 				_e = r
 			}
 		}()
-		// 复制代码运行请自行打印 API 的返回值
 		request, _err := ptr.client.DescribeDomainRecordsWithOptions(describeDomainRecordsRequest, runtime)
 		if _err != nil {
 			return _err
@@ -210,6 +209,43 @@ func (ptr *aliyun) GetNetCardIP(name string) string {
 	return ""
 }
 
+// 查询云解析记录
+func (ptr *aliyun) searchAliyunIp(recordId string) string {
+	describeDomainRecordInfoRequest := &alidns20150109.DescribeDomainRecordInfoRequest{
+		RecordId: tea.String(recordId),
+	}
+	runtime := &util.RuntimeOptions{}
+	var ip *string
+	tryErr := func(re *string) (_e error) {
+		defer func() {
+			if r := tea.Recover(recover()); r != nil {
+				_e = r
+			}
+		}()
+		request, _err := ptr.client.DescribeDomainRecordInfoWithOptions(describeDomainRecordInfoRequest, runtime)
+		if _err != nil {
+			return _err
+		}
+		ip := *request.Body.Value
+		re = &ip
+		return nil
+	}(ip)
+
+	if tryErr != nil {
+		var error = &tea.SDKError{}
+		if _t, ok := tryErr.(*tea.SDKError); ok {
+			error = _t
+		} else {
+			error.Message = tea.String(tryErr.Error())
+		}
+		_, _err := util.AssertAsString(error.Message)
+		if _err != nil {
+			return ""
+		}
+	}
+	return *ip
+}
+
 // Start 检测域名与ip是否对应
 func (ptr *aliyun) Start() {
 	ticker1 := time.NewTicker(30 * time.Second)
@@ -224,11 +260,18 @@ func (ptr *aliyun) Start() {
 			state, err := ptr.JudgeChange(value, currIp)
 			if err != nil {
 				fmt.Println("修改域名解析失败，NetCard:", value.NetCard, "RR:", value.RR, "old ip:", oldIp,
-					" new ip:", currIp)
+					"new ip:", currIp, "recordId:", value.recordId)
 				continue
 			}
 			if state {
-				fmt.Println("成功修改解析，RR:", value.RR, "old ip:", oldIp, "new ip:", currIp)
+				fmt.Println("尝试修改解析，RR:", value.RR, "old ip:", oldIp, "new ip:", currIp, "recordId:",
+					value.recordId)
+				if ptr.searchAliyunIp(value.recordId) == currIp {
+					fmt.Println("检测修改成功")
+				} else {
+					fmt.Println("检测修改失败，开始重置ip")
+					value.value = oldIp
+				}
 			}
 		}
 	}
