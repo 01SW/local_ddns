@@ -7,6 +7,7 @@ require (
 	github.com/alibabacloud-go/darabonba-openapi/v2 v2.0.2
 	github.com/alibabacloud-go/tea v1.1.20
 	github.com/alibabacloud-go/tea-utils/v2 v2.0.1
+	gopkg.in/ini.v1 v1.56.0
 )
 
 require (
@@ -23,5 +24,4 @@ require (
 	github.com/modern-go/reflect2 v1.0.1 // indirect
 	github.com/tjfoc/gmsm v1.3.2 // indirect
 	golang.org/x/net v0.0.0-20200506145744-7e3656a0809f // indirect
-	gopkg.in/ini.v1 v1.56.0 // indirect
 )

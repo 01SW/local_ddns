@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"time"
 )
 
 func main() {
@@ -45,8 +46,13 @@ func main() {
 	for _, value := range domainList {
 		err = ptr.AddDomains(value)
 		if err != nil {
-			fmt.Println("加入域名信息失败，", err.Error())
-			return
+			num := 1
+			for err != nil {
+				fmt.Println("加入域名信息失败，", err.Error(), "尝试次数:", num)
+				num += 1
+				time.Sleep(10 * time.Second)
+				err = ptr.AddDomains(value)
+			}
 		}
 	}
 
