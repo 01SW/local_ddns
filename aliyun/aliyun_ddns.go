@@ -209,14 +209,14 @@ func (ptr *aliyun) GetNetCardIP(name string) string {
 	return ""
 }
 
-// 查询云解析记录
+// searchAliyunIp 查询云解析记录
 func (ptr *aliyun) searchAliyunIp(recordId string) string {
 	describeDomainRecordInfoRequest := &alidns20150109.DescribeDomainRecordInfoRequest{
 		RecordId: tea.String(recordId),
 	}
 	runtime := &util.RuntimeOptions{}
-	var ip *string
-	tryErr := func(re *string) (_e error) {
+	var ip string
+	tryErr := func() (_e error) {
 		defer func() {
 			if r := tea.Recover(recover()); r != nil {
 				_e = r
@@ -226,24 +226,23 @@ func (ptr *aliyun) searchAliyunIp(recordId string) string {
 		if _err != nil {
 			return _err
 		}
-		ip := *request.Body.Value
-		re = &ip
+		ip = *request.Body.Value
 		return nil
-	}(ip)
+	}()
 
 	if tryErr != nil {
-		var error = &tea.SDKError{}
+		var er = &tea.SDKError{}
 		if _t, ok := tryErr.(*tea.SDKError); ok {
-			error = _t
+			er = _t
 		} else {
-			error.Message = tea.String(tryErr.Error())
+			er.Message = tea.String(tryErr.Error())
 		}
-		_, _err := util.AssertAsString(error.Message)
+		_, _err := util.AssertAsString(er.Message)
 		if _err != nil {
 			return ""
 		}
 	}
-	return *ip
+	return ip
 }
 
 // Start 检测域名与ip是否对应
