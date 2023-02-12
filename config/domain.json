@@ -1,0 +1,8 @@
+[
+  {
+    "Name": "test.com",
+    "Type": "A",
+    "RR": "test",
+    "NetCard": "tun0"
+  }
+]
