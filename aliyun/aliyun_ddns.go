@@ -216,16 +216,19 @@ func (ptr *aliyun) Start() {
 	defer ticker1.Stop()
 	for {
 		<-ticker1.C
-		for _, value := range ptr.DomainList {
+		for index, _ := range ptr.DomainList {
+			value := &ptr.DomainList[index]
+
+			oldIp := value.value
 			currIp := ptr.GetNetCardIP(value.NetCard)
-			state, err := ptr.JudgeChange(&value, currIp)
+			state, err := ptr.JudgeChange(value, currIp)
 			if err != nil {
-				fmt.Println("修改域名解析失败，NetCard:", value.NetCard, " RR:", value.RR, " old ip:", value.value,
+				fmt.Println("修改域名解析失败，NetCard:", value.NetCard, "RR:", value.RR, "old ip:", oldIp,
 					" new ip:", currIp)
 				continue
 			}
 			if state {
-				fmt.Println("成功修改解析，RR:", value.RR, " new ip:", currIp)
+				fmt.Println("成功修改解析，RR:", value.RR, "old ip:", oldIp, "new ip:", currIp)
 			}
 		}
 	}
