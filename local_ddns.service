@@ -6,6 +6,9 @@ After=syslog.target
 ExecStart=/home/exe/local_ddns/local_ddns
 SuccessExitStatus=143
 RemainAfterExit=yes
+Restart=always
+RestartSec=5
+StartLimitInterval=0
  
 [Install]
 WantedBy=multi-user.target
