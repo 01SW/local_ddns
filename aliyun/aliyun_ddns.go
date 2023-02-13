@@ -123,6 +123,10 @@ func (ptr *aliyun) searchRecordId(domain *Domain) error {
 
 // JudgeChange 判断当前域名是否需要修改解析
 func (ptr *aliyun) JudgeChange(domain *Domain, currIp string) (bool, error) {
+	if currIp == "" {
+		fmt.Println("网卡:", domain.NetCard, "获取的ip为空")
+		return false, nil
+	}
 	if domain.value == currIp {
 		return false, nil
 	}
@@ -265,10 +269,12 @@ func (ptr *aliyun) Start() {
 			if state {
 				fmt.Println("尝试修改解析，RR:", value.RR, "old ip:", oldIp, "new ip:", currIp, "recordId:",
 					value.recordId)
-				if ptr.searchAliyunIp(value.recordId) == currIp {
+				remoteIP := ptr.searchAliyunIp(value.recordId)
+				if remoteIP == currIp {
 					fmt.Println("检测修改成功")
 				} else {
-					fmt.Println("检测修改失败，开始重置ip")
+					fmt.Println("检测修改失败，远程ip为", remoteIP, "当前程序所记录ip为", currIp,
+						"。开始重置所记录ip为:", oldIp, "，等待下一次再次进行修改")
 					value.value = oldIp
 				}
 			}
